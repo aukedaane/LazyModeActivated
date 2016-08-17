@@ -1,0 +1,21 @@
+#Author: Auke Daane
+#Date: August 10, 2016
+
+#Declare Template and Destination locations
+$Template = "D:\Templates\W2016TP5_Template.vhdx"
+$Dest_VHDx_Location = "E:\VMs\"
+
+#Declare hosts
+$StorageServers = @("StorageBox01","StorageBox02","StorageBox03","StorageBox04")
+
+# 1) Copy template for each host and set the correct name
+# 2) Create new Gen 2 VM with 4GB RAM and connect to preconfigured VHDX and Virtual Switch
+# 3) Add an extra cpu (New-VM cannot set cpu count and is 1 by default)
+
+foreach ($StorageServer in $StorageServers) 
+    {
+    $Dest_VHDx = $Dest_VHDx_Location + $Storageserver + ".vhdx"
+    Copy-Item $Template "$Dest_VHDx"
+    New-VM -Name $StorageServer -MemoryStartupBytes 4096MB -Generation 2 -Path $Dest_VHDx_Location -VHDPath $Dest_VHDx -SwitchName "V-Switch01" 
+    Set-VMProcessor $StorageServer -Count 2
+    }
